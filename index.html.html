@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Bradley Funeral Committee</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; }
+        body { font-family: system-ui, sans-serif; background: #f0f2f5; padding: 1rem; }
+        .container { max-width: 1000px; margin: auto; }
+        .card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 1.5rem; }
+        .flex { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .badge { background: #f5b342; padding: 0.25rem 1rem; border-radius: 50px; font-weight: 600; }
+        .btn { padding: 0.5rem 1.2rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; background: #e9edf2; }
+        .btn-primary { background: #0b2b4a; color: white; }
+        .btn-gold { background: #f5b342; color: #0b2b4a; }
+        .btn-sm { padding: 0.25rem 0.8rem; font-size: 0.85rem; }
+        .btn-download { background: #10b981; color: white; }
+        .btn-download:hover { background: #059669; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th { text-align: left; padding: 0.75rem 0.5rem; background: #e9edf2; }
+        td { padding: 0.6rem 0.5rem; border-bottom: 1px solid #e2e6ea; }
+        .text-muted { color: #6c7a8a; }
+        .mt-2 { margin-top: 0.5rem; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); align-items: center; justify-content: center; }
+        .modal.open { display: flex; }
+        .modal-content { background: white; max-width: 90%; width: 700px; border-radius: 12px; padding: 2rem; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .close { font-size: 1.8rem; cursor: pointer; background: none; border: none; }
+        input { width: 100%; padding: 0.6rem; border: 1px solid #ccc; border-radius: 8px; margin: 0.3rem 0 0.8rem; }
+        label { font-weight: 500; }
+        @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- Header -->
+    <div class="flex card">
+        <div>
+            <h2 style="color:#0b2b4a;">🕊️ The Bradley Funeral Committee</h2>
+            <span class="badge">M‑Pesa · KES 500/mo</span>
+        </div>
+        <div>
+            <button class="btn btn-gold" onclick="openRegister()">➕ Register</button>
+            <button class="btn btn-primary" onclick="openOffice()">📋 Office</button>
+            <button class="btn btn-download" onclick="downloadCSV()">📥 Download Data</button>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid-2 card" id="stats">
+        <div><span class="text-muted">Total members</span> <h3 id="totalMembers">0</h3></div>
+        <div><span class="text-muted">Active this month</span> <h3 id="activeSubs">0</h3></div>
+        <div><span class="text-muted">Revenue this month (KES)</span> <h3 id="monthlyRevenue">0</h3></div>
+    </div>
+
+    <!-- Member list -->
+    <div class="card">
+        <div class="flex"><h4>👥 Members</h4> <span class="text-muted" id="memberCount">0</span></div>
+        <table>
+            <thead><tr><th>Name</th><th>Phone</th><th>Status</th><th></th></tr></thead>
+            <tbody id="memberList"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Register Modal -->
+<div class="modal" id="registerModal">
+    <div class="modal-content">
+        <div class="modal-header"><h3>Register new member</h3> <button class="close" onclick="closeModal('registerModal')">&times;</button></div>
+        <form id="registerForm" onsubmit="registerMember(event)">
+            <label>Full name *</label><input type="text" id="fullName" required>
+            <label>Phone (M‑Pesa) *</label><input type="tel" id="phone" required>
+            <label>ID number (optional)</label><input type="text" id="idNumber">
+            <p class="text-muted" style="font-size:0.9rem;">Paybill <strong>247247</strong> · Account <strong>Bradley Funeral</strong> · KES 500</p>
+            <button type="submit" class="btn btn-gold" style="width:100%;">Register & pay via M‑Pesa</button>
+        </form>
+    </div>
+</div>
+
+<!-- Office Modal -->
+<div class="modal" id="officeModal">
+    <div class="modal-content" style="max-width:95%;">
+        <div class="modal-header"><h3>📊 Office · Members & Statements</h3> <button class="close" onclick="closeModal('officeModal')">&times;</button></div>
+        <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
+            <button class="btn btn-sm" onclick="switchTab('members')">All Members</button>
+            <button class="btn btn-sm" onclick="switchTab('statements')">Statements</button>
+            <button class="btn btn-sm" onclick="switchTab('summary')">Summary</button>
+        </div>
+        <div id="officeContent"></div>
+        <hr>
+        <div class="flex">
+            <span class="text-muted">💾 Data stored locally in your browser</span>
+            <button class="btn btn-sm" style="background:#dc3545;color:white;" onclick="clearAll()">🗑️ Clear all data</button>
+            <button class="btn btn-sm" onclick="generateSample()">🧪 Sample 100 members</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---------- Data layer (localStorage) ----------
+    const MEMBERS_KEY = 'bradley_members';
+    const SUBS_KEY = 'bradley_subs';
+
+    function getMembers() { return JSON.parse(localStorage.getItem(MEMBERS_KEY) || '[]'); }
+    function setMembers(m) { localStorage.setItem(MEMBERS_KEY, JSON.stringify(m)); }
+    function getSubs() { return JSON.parse(localStorage.getItem(SUBS_KEY) || '[]'); }
+    function setSubs(s) { localStorage.setItem(SUBS_KEY, JSON.stringify(s)); }
+
+    function genId() { return Date.now().toString(36) + Math.random().toString(36).substr(2,6); }
+    function today() { return new Date().toISOString().split('T')[0]; }
+    function currentMonth() { return new Date().getMonth() + 1; }
+    function currentYear() { return new Date().getFullYear(); }
+
+    // ---------- Register ----------
+    async function registerMember(e) {
+        e.preventDefault();
+        const fullName = document.getElementById('fullName').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const idNumber = document.getElementById('idNumber').value.trim() || '—';
+        if (!fullName || !phone) return alert('Name and phone required.');
+
+        const members = getMembers();
+        if (members.some(m => m.phone === phone)) return alert('Phone already registered.');
+
+        const member = { id: genId(), fullName, phone, idNumber, registered: today() };
+        members.push(member);
+        setMembers(members);
+
+        // create pending subscription
+        const subs = getSubs();
+        subs.push({
+            id: genId(),
+            memberId: member.id,
+            phone,
+            name: fullName,
+            month: currentMonth(),
+            year: currentYear(),
+            amount: 500,
+            status: 'pending',
+            paidDate: null
+        });
+        setSubs(subs);
+
+        closeModal('registerModal');
+        document.getElementById('registerForm').reset();
+        renderUI();
+        alert(`✅ ${fullName} registered. Pay KES 500 via M‑Pesa Paybill 247247 Account "Bradley Funeral".`);
+    }
+
+    // ---------- Mark paid ----------
+    function markPaid(memberId) {
+        let subs = getSubs();
+        const month = currentMonth(), year = currentYear();
+        let existing = subs.find(s => s.memberId === memberId && s.month === month && s.year === year);
+        if (existing) {
+            if (existing.status === 'paid') return alert('Already paid this month.');
+            existing.status = 'paid';
+            existing.paidDate = today();
+        } else {
+            const members = getMembers();
+            const m = members.find(x => x.id === memberId);
+            if (!m) return alert('Member not found');
+            subs.push({
+                id: genId(),
+                memberId: m.id,
+                phone: m.phone,
+                name: m.fullName,
+                month, year,
+                amount: 500,
+                status: 'paid',
+                paidDate: today()
+            });
+        }
+        setSubs(subs);
+        renderUI();
+        if (document.getElementById('officeModal').classList.contains('open')) renderOffice();
+    }
+
+    // ---------- Download CSV ----------
+    function downloadCSV() {
+        const members = getMembers();
+        const subs = getSubs();
+
+        if (members.length === 0 && subs.length === 0) {
+            alert('No data to download.');
+            return;
+        }
+
+        let csvRows = [
+            ['Member Name', 'Phone', 'ID Number', 'Registered Date', 'Month', 'Year', 'Amount (KES)', 'Status', 'Paid Date']
+        ];
+
+        if (subs.length === 0) {
+            members.forEach(m => {
+                csvRows.push([m.fullName, m.phone, m.idNumber, m.registered, '', '', '', '', '']);
+            });
+        } else {
+            subs.forEach(s => {
+                const member = members.find(m => m.id === s.memberId);
+                const name = member ? member.fullName : s.name;
+                const phone = member ? member.phone : s.phone;
+                const idNum = member ? member.idNumber : '—';
+                const regDate = member ? member.registered : '—';
+                csvRows.push([
+                    name,
+                    phone,
+                    idNum,
+                    regDate,
+                    s.month,
+                    s.year,
+                    s.amount,
+                    s.status,
+                    s.paidDate || '—'
+                ]);
+            });
+        }
+
+        const csvString = csvRows.map(row => row.join(',')).join('\n');
+        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `Bradley_Funeral_Data_${today()}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+    }
+
+    // ---------- Render frontend ----------
+    function renderUI() {
+        const members = getMembers();
+        const subs = getSubs();
+        const month = currentMonth(), year = currentYear();
+
+        document.getElementById('totalMembers').textContent = members.length;
+        const active = subs.filter(s => s.month === month && s.year === year && s.status === 'paid');
+        document.getElementById('activeSubs').textContent = active.length;
+        const revenue = active.reduce((sum, s) => sum + Number(s.amount), 0);
+        document.getElementById('monthlyRevenue').textContent = revenue.toLocaleString();
+        document.getElementById('memberCount').textContent = members.length;
+
+        const tbody = document.getElementById('memberList');
+        if (members.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="text-muted" style="text-align:center;padding:1rem;">No members yet.</td></tr>`;
+        } else {
+            const display = members.slice(-20).reverse();
+            tbody.innerHTML = display.map(m => {
+                const paid = subs.some(s => s.memberId === m.id && s.month === month && s.year === year && s.status === 'paid');
+                const status = paid ? '✅ Paid' : '⏳ Pending';
+                return `<tr>
+                    <td>${m.fullName}</td>
+                    <td>${m.phone}</td>
+                    <td>${status}</td>
+                    <td><button class="btn btn-sm btn-gold" onclick="markPaid('${m.id}')">Pay now</button></td>
+                </tr>`;
+            }).join('');
+        }
+    }
+
+    // ---------- Office ----------
+    let officeTab = 'members';
+
+    function renderOffice() {
+        const members = getMembers();
+        const subs = getSubs();
+        const container = document.getElementById('officeContent');
+
+        if (officeTab === 'members') {
+            let html = `<table><thead><tr><th>#</th><th>Name</th><th>Phone</th><th>ID</th><th>Registered</th><th>Action</th></tr></thead><tbody>`;
+            if (members.length === 0) html += `<tr><td colspan="6" class="text-muted">No members</td></tr>`;
+            else {
+                members.forEach((m, i) => {
+                    html += `<tr>
+                        <td>${i+1}</td>
+                        <td>${m.fullName}</td>
+                        <td>${m.phone}</td>
+                        <td>${m.idNumber}</td>
+                        <td>${m.registered}</td>
+                        <td><button class="btn btn-sm" style="background:#dc3545;color:white;" onclick="deleteMember('${m.id}')">🗑️</button></td>
+                    </tr>`;
+                });
+            }
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        } else if (officeTab === 'statements') {
+            let html = `<table><thead><tr><th>Member</th><th>Phone</th><th>Month/Year</th><th>Amount</th><th>Status</th><th>Paid date</th></tr></thead><tbody>`;
+            if (subs.length === 0) html += `<tr><td colspan="6" class="text-muted">No subscriptions</td></tr>`;
+            else {
+                const sorted = subs.slice().reverse();
+                sorted.forEach(s => {
+                    const statusBadge = s.status === 'paid' ? '✅ Paid' : '⏳ Pending';
+                    html += `<tr>
+                        <td>${s.name}</td>
+                        <td>${s.phone}</td>
+                        <td>${s.month}/${s.year}</td>
+                        <td>KES ${s.amount}</td>
+                        <td>${statusBadge}</td>
+                        <td>${s.paidDate || '—'}</td>
+                    </tr>`;
+                });
+            }
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        } else { // summary
+            const total = members.length;
+            const paid = subs.filter(s => s.status === 'paid');
+            const totalRev = paid.reduce((sum, s) => sum + Number(s.amount), 0);
+            container.innerHTML = `
+                <div class="grid-2">
+                    <div><strong>Total members</strong><br><h3>${total}</h3></div>
+                    <div><strong>Paid subscriptions</strong><br><h3>${paid.length}</h3></div>
+                    <div><strong>Total revenue (KES)</strong><br><h3>${totalRev.toLocaleString()}</h3></div>
+                </div>
+                <p class="text-muted mt-2">Last 10 payments:</p>
+                <table><thead><tr><th>Member</th><th>Month</th><th>Amount</th></tr></thead><tbody>
+                ${paid.slice(-10).reverse().map(s => `<tr><td>${s.name}</td><td>${s.month}/${s.year}</td><td>KES ${s.amount}</td></tr>`).join('')}
+                </tbody></table>
+            `;
+        }
+    }
+
+    // ---------- Utilities ----------
+    function openRegister() { document.getElementById('registerModal').classList.add('open'); }
+    function openOffice() { document.getElementById('officeModal').classList.add('open'); renderOffice(); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+    function switchTab(tab) { officeTab = tab; renderOffice(); }
+
+    function deleteMember(id) {
+        if (!confirm('Delete member and all their subscriptions?')) return;
+        let members = getMembers();
+        members = members.filter(m => m.id !== id);
+        setMembers(members);
+        let subs = getSubs();
+        subs = subs.filter(s => s.memberId !== id);
+        setSubs(subs);
+        renderUI();
+        renderOffice();
+    }
+
+    function clearAll() {
+        if (!confirm('Delete ALL data?')) return;
+        localStorage.removeItem(MEMBERS_KEY);
+        localStorage.removeItem(SUBS_KEY);
+        renderUI();
+        if (document.getElementById('officeModal').classList.contains('open')) renderOffice();
+    }
+
+    function generateSample() {
+        const names = ['Alice','Bob','Carol','David','Eva','Frank','Grace','Henry','Ivy','Jack','Kevin','Linda','Michael','Nancy','Oliver','Paul','Quinn','Rachel','Steve','Tina','Ulysses','Vera','Will','Xena','Yvonne','Zack'];
+        const members = [];
+        const subs = [];
+        for (let i = 0; i < 100; i++) {
+            const id = genId();
+            const fn = names[Math.floor(Math.random() * names.length)];
+            const ln = names[Math.floor(Math.random() * names.length)];
+            const name = `${fn} ${ln}`;
+            const phone = `07${Math.floor(Math.random()*10000000).toString().padStart(7,'0')}`;
+            members.push({ id, fullName: name, phone, idNumber: '—', registered: today() });
+            const numSubs = Math.floor(Math.random() * 3) + 1;
+            for (let j = 0; j < numSubs; j++) {
+                const m = Math.floor(Math.random() * 12) + 1;
+                const y = Math.random() > 0.5 ? 2024 : 2025;
+                const status = Math.random() > 0.3 ? 'paid' : 'pending';
+                subs.push({
+                    id: genId(),
+                    memberId: id,
+                    phone,
+                    name,
+                    month: m,
+                    year: y,
+                    amount: 500,
+                    status,
+                    paidDate: status === 'paid' ? today() : null
+                });
+            }
+        }
+        setMembers(members);
+        setSubs(subs);
+        renderUI();
+        if (document.getElementById('officeModal').classList.contains('open')) renderOffice();
+        alert(`✅ Generated ${members.length} members with ${subs.length} subscriptions.`);
+    }
+
+    // ---------- Init ----------
+    renderUI();
+</script>
+</body>
+</html>
