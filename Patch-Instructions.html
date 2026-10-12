@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Bradley Funeral - Email Optional</title><script src="https://cdn.tailwindcss.com"></script><style>body{background:#0a0a0f;color:#e2e8f0;font-family:Inter,ui-sans-serif}</style></head><body class="p-8">
+<div class="max-w-[700px] mx-auto rounded-[20px] border bg-[#111827] p-8" style="border-color:#1f2937">
+<h2 class="text-[20px] font-bold">Update your Code.gs - Email Optional Patch</h2>
+<p class="mt-3 text-[12px] leading-[1.6] text-[#94a3b8]">In your existing Code.gs, find function <b>handleLead(e)</b> and replace it with this version:</p>
+<pre class="mt-4 rounded-lg bg-[#0a0a0f] border border-[#1f2937] p-4 text-[11px] leading-[1.5] overflow-auto whitespace-pre-wrap text-[#cbd5e1]">function handleLead(e){
+  var p = e.parameter;
+  var name = (p.name||"").trim();
+  var phone = (p.phone||"").trim();
+  var email = (p.email||"").trim().toLowerCase();
+  var ref = (p.ref||"BRADLEY").toUpperCase();
+  
+  if(!name || !phone) return json({ok:false, error:"Name and Phone required"});
+  
+  var hasEmail = email && email.indexOf("@") > -1;
+  var token = Utilities.getUuid().replace(/-/g,"").substring(0,12).toUpperCase();
+  var ts = new Date();
+  var verified = hasEmail ? false : true; // Auto-verify if no email
+  
+  var ss = SpreadsheetApp.openById(SHEET_ID || getSheetId());
+  var sheet = ss.getSheetByName("Leads");
+  if(!sheet){ sheet = ss.insertSheet("Leads"); sheet.appendRow(["Timestamp","Token","Name","Phone","Email","Ref","Verified","NoEmail","Source"]); }
+  sheet.appendRow([ts, token, name, phone, email, ref, verified, !hasEmail, "github-bradley-funeral"]);
+  
+  if(hasEmail){
+    try{
+      var confirmUrl = "https://bradleyhome.github.io/bradley-funeral/confirm.html?token=" + token;
+      var subject = "Confirm your Bradley membership — " + name;
+      var body = "Habari " + name + ",\n\nAsante for joining Bradley Funeral Committee.\nRef: " + ref + " — 5 Levels 10,4,3,2,1 — Locked 12 months\nPhone: " + phone + "\n\nCONFIRM YOUR EMAIL HERE:\n" + confirmUrl + "\n\nAfter confirmation:\n1. Pay KES 100 to Till 6282142\n2. Send proof to bradley.funeralcommittee@gmail.com\n\nChama ya Heshima";
+      MailApp.sendEmail({to: email, subject: subject, body: body, name: "Bradley Funeral Committee"});
+    }catch(mailErr){
+      return json({ok:true, token:token, verified:false, emailAttempted:true, warning: mailErr.message});
+    }
+    return json({ok:true, token:token, verified:false, hasEmail:true, ref:ref});
+  } else {
+    return json({ok:true, token:token, verified:true, hasEmail:false, noEmail:true, ref:ref});
+  }
+}</pre>
+<p class="mt-4 text-[12px] text-[#86efac]">✅ This keeps your existing SHEET_ID. Only logic changed: email optional, auto-verified if blank.</p>
+<p class="mt-4 text-[12px] text-[#94a3b8]">After pasting, click Deploy > Manage deployments > Edit (pencil) > New version > Deploy. Keep exec URL same.</p>
+</div>
+</body></html>
