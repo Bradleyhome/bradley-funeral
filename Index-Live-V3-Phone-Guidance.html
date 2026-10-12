@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Bradley Funeral Committee | KES 100 Welfare Fund</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+body{background:#0a0a0f;color:#e2e8f0;font-family:Inter,ui-sans-serif}
+.font-display{font-family:Georgia,serif}
+input::placeholder{color:#64748b !important;opacity:1}
+</style>
+</head>
+<body class="min-h-screen antialiased">
+<header class="sticky top-0 z-50 flex items-center justify-between gap-3 px-4 md:px-6 py-3.5 border-b backdrop-blur-[14px]" style="background:rgba(10,10,15,0.88);border-color:#1f2937">
+<div class="font-extrabold text-[12px]">THE BRADLEY <span style="color:#d4af37">FUNERAL COMMITTEE</span></div>
+<div class="flex items-center gap-2">
+<div class="hidden sm:flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-bold" style="border-color:rgba(34,197,94,0.35);color:#22c55e;background:rgba(34,197,94,0.08)">TILL 6282142 LIVE</div>
+<select id="langSel" class="rounded-lg border bg-[#111827] px-2 py-1.5 text-[11px] text-white" style="border-color:#1f2937"><option value="en">English</option><option value="sw">Kiswahili</option><option value="fr">Français</option><option value="ar">العربية</option></select>
+</div>
+</header>
+<div id="refBanner" class="hidden text-center py-2.5 px-4 text-[13px] font-semibold border-b" style="background:#111827;border-color:#1f2937;color:#d4af37"></div>
+
+<main class="mx-auto max-w-[1150px] px-4 md:px-6 py-8">
+<div id="access" class="rounded-[20px] border bg-[#111827] p-6 md:p-8" style="border-color:rgba(212,175,55,0.45)">
+<div class="flex justify-between items-start gap-4"><div><h2 class="font-display text-[24px] font-bold">Member Registration — LIVE</h2><p class="mt-2 text-[12px] text-[#94a3b8]">Ref: <span class="refText">BRADLEY</span> • Email optional • Phone required for M-Pesa Till 6282142</p></div><div class="rounded-full border px-3 py-1.5 text-[10px] font-semibold" style="border-color:rgba(212,175,55,0.3);color:#d4af37;background:rgba(212,175,55,0.08)">LIVE • SHEETS + GMAIL</div></div>
+
+<div class="mt-6 rounded-xl border p-4" style="border-color:rgba(212,175,55,0.3);background:#0a0a0f">
+<div class="text-[12px] font-bold text-[#facc15]">📱 WHERE TO PUT YOUR MOBILE NUMBER — READ THIS:</div>
+<div class="mt-2 text-[12px] leading-[1.6] text-[#cbd5e1]">
+<strong>FIELD 2 = PHONE / M-PESA NUMBER (REQUIRED)</strong><br>
+• Enter your Safaricom number that you will use to pay Till <b>6282142</b><br>
+• Format: <b>07XXXXXXXX</b> or <b>+2547XXXXXXXX</b><br>
+• Example: <code class="bg-[#1f2937] px-2 py-0.5 rounded">0712345678</code> or <code class="bg-[#1f2937] px-2 py-0.5 rounded">+254712345678</code><br>
+• We use this to match your M-Pesa SMS code.
+</div>
+</div>
+
+<div class="mt-8 grid md:grid-cols-[1.1fr_0.9fr] gap-8">
+<div class="space-y-5">
+<div>
+<label class="text-[12px] font-bold text-[#e2e8f0]">1. FULL NAME * <span class="font-normal text-[#94a3b8]">— as on ID</span></label>
+<input id="inpName" placeholder="e.g. John Kamau Wafula" class="mt-2 w-full rounded-[10px] border bg-[#0a0a0f] px-3.5 py-4 text-[14px] text-white outline-none focus:border-[#d4af37]" style="border-color:#334155">
+</div>
+<div>
+<label class="text-[12px] font-bold text-[#facc15]">2. PHONE / M-PESA NUMBER * — REQUIRED FOR TILL 6282142</label>
+<input id="inpPhone" type="tel" placeholder="07XXXXXXXX or +2547XXXXXXXX — e.g. 0712345678" class="mt-2 w-full rounded-[10px] border-2 bg-[#0a0a0f] px-3.5 py-4 text-[14px] text-white outline-none focus:border-[#d4af37]" style="border-color:#d4af37">
+<div class="mt-2 text-[11px] leading-[1.4] text-[#94a3b8]">📱 Enter the Safaricom number you will use to pay. We match this with your M-Pesa message to Till <b style="color:#22c55e">6282142</b>. Format 07... or +2547...</div>
+</div>
+<div>
+<label class="text-[12px] font-bold text-[#e2e8f0]">3. EMAIL <span class="ml-2 text-[10px] px-2 py-0.5 rounded-full border bg-[#0a0a0f] text-[#64748b]" style="border-color:#1f2937">(Optional — leave blank if no email)</span></label>
+<input id="inpEmail" type="email" placeholder="you@gmail.com — optional, for confirmation link" class="mt-2 w-full rounded-[10px] border bg-[#0a0a0f] px-3.5 py-4 text-[14px] text-white outline-none" style="border-color:#334155">
+<div class="mt-2 text-[11px] text-[#64748b]">If you have email, we send confirmation link. If no email, you are auto-verified and can pay immediately.</div>
+</div>
+<button id="leadBtn" class="mt-3 w-full rounded-[10px] py-4 text-[13px] font-extrabold tracking-wide hover:brightness-110" style="background:#d4af37;color:#000">Register → Check Phone / Inbox</button>
+<div id="status" class="hidden rounded-lg border p-3 text-[12px] leading-[1.5] mt-3"></div>
+</div>
+
+<div class="rounded-[14px] border bg-[#0a0a0f] p-5 min-h-[300px] flex flex-col" style="border-color:#1f2937">
+<div class="text-[11px] font-bold tracking-[0.08em] text-[#64748b]">LIVE STATUS</div>
+<div id="previewBox" class="mt-5 rounded-lg bg-[#111827] border border-[#1f2937] p-3.5 text-[12px] leading-[1.6] whitespace-pre-wrap text-[#cbd5e1]">No submission yet — fill:
+1. Full Name
+2. Phone (07... format)
+3. Email optional
+Then click Register.</div>
+<div class="mt-4 grid grid-cols-2 gap-2.5">
+<button id="copyBtn" class="rounded-lg border bg-[#1f2937] py-3 text-[12px] font-semibold text-white" style="border-color:#334155">Copy Details</button>
+<a id="mailtoBtn" href="mailto:bradley.funeralcommittee@gmail.com" class="rounded-lg bg-[#d4af37] py-3 text-center text-[12px] font-bold text-black">Open Email App</a>
+</div>
+<div class="mt-4 rounded-lg border border-[#22c55e]/20 bg-[#22c55e]/10 p-3 text-[11px] leading-[1.5] text-[#86efac]">✅ Phone required, email optional. No email = auto-verified → pay Till 6282142 immediately. With email = check inbox for confirm link.</div>
+</div>
+</div>
+</div>
+
+<footer class="mt-10 border-t pt-8 pb-28 text-center" style="border-color:#1f2937"><div class="text-[11px] text-[#64748b]">© 2026 Bradley Funeral Committee • Till 6282142 LIVE • bradley.funeralcommittee@gmail.com</div></footer>
+</main>
+<div id="toast" class="fixed bottom-20 left-1/2 z-[60] -translate-x-1/2 rounded-full border bg-[#111827] px-5 py-2.5 text-[12px] font-semibold text-[#e2e8f0] shadow-xl max-w-[90vw] text-center hidden" style="border-color:#334155"></div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbyTna3jo7cF0SbM04DpFiSyiNi7JGgZ3ghVigfzyIpk1oR5CCQSKd-eDVqbpPlBrajR/exec";
+function getRef(){ const p=new URLSearchParams(location.search); return (p.get("ref")||"BRADLEY").toUpperCase(); }
+function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.classList.remove("hidden"); setTimeout(()=>t.classList.add("hidden"),4000); }
+async function submitLead(){
+ const name=document.getElementById("inpName").value.trim();
+ const phone=document.getElementById("inpPhone").value.trim();
+ const email=document.getElementById("inpEmail").value.trim();
+ const ref=getRef();
+ const status=document.getElementById("status");
+ const btn=document.getElementById("leadBtn");
+ const preview=document.getElementById("previewBox");
+ if(!name){ toast("Enter full name"); return; }
+ if(!phone){ toast("Enter Phone / M-Pesa number — FIELD 2 is required"); document.getElementById("inpPhone").focus(); return; }
+ if(phone.length < 9){ toast("Phone too short — use 07XXXXXXXX or +2547..."); return; }
+ const hasEmail = email && email.includes("@");
+ btn.disabled=true; btn.textContent="Sending...";
+ status.classList.remove("hidden");
+ status.className="rounded-lg border p-3 text-[12px] mt-3 border-[#334155] bg-[#111827] text-[#94a3b8]";
+ status.textContent= hasEmail ? "Saving + sending confirmation email to "+email+"..." : "Saving phone "+phone+" + auto-verifying (no email)...";
+ try{
+  const qs=new URLSearchParams({action:"lead",name,phone,email,ref}).toString();
+  const res=await fetch(API_URL+"?"+qs);
+  const text=await res.text();
+  let data; try{ data=JSON.parse(text); } catch{ data={ok:true,raw:text}; }
+  const token=data.token||"N/A";
+  if(data.ok || data.token){
+   if(data.noEmail || !hasEmail){
+     toast("✅ Registered — "+phone+" auto-verified! Pay Till 6282142 now");
+     status.className="rounded-lg border p-3 text-[12px] mt-3 border-[#22c55e]/30 bg-[#22c55e]/10 text-[#86efac]";
+     status.innerHTML="✅ <b>PHONE "+phone+" REGISTERED & AUTO-VERIFIED</b><br><br>Token: "+token+"<br>Ref: "+ref+"<br><br><b>NEXT:</b> Pay KES 100 to <b>M-Pesa Buy Goods Till 6282142</b> using phone "+phone+"<br>Then send M-Pesa SMS code + Name to bradley.funeralcommittee@gmail.com or WhatsApp.";
+     preview.textContent="Full Name: "+name+"\nPhone / M-Pesa: "+phone+" (FIELD 2)\nEmail: (none — optional)\nRef: "+ref+"\nStatus: AUTO-VERIFIED — Ready to pay\nAction: Pay KES 100 to Till 6282142 using "+phone;
+   } else {
+     toast("✅ Confirmation sent to "+email+" — check inbox");
+     status.className="rounded-lg border p-3 text-[12px] mt-3 border-[#22c55e]/30 bg-[#22c55e]/10 text-[#86efac]";
+     status.innerHTML="✅ Saved! Email sent to <b>"+email+"</b> (Phone: "+phone+")<br>Token: "+token+"<br>Check inbox/spam for confirm link: bradleyhome.github.io/bradley-funeral/confirm.html?token="+token;
+     preview.textContent="Name: "+name+"\nPhone: "+phone+"\nEmail: "+email+"\nRef: "+ref+"\nStatus: Email sent — click confirm link\nNext: Confirm then pay Till 6282142";
+   }
+  } else {
+   toast("Error: "+(data.error||text.slice(0,80)));
+   status.className="rounded-lg border p-3 text-[12px] mt-3 border-[#ef4444]/30 bg-[#ef4444]/10 text-[#fca5a5]";
+   status.textContent="❌ "+JSON.stringify(data);
+  }
+ }catch(e){
+  toast("Network error");
+  status.textContent="❌ "+e.message+" — exec: "+API_URL;
+ } finally { btn.disabled=false; btn.textContent="Register → Check Phone / Inbox"; }
+}
+document.getElementById("leadBtn").addEventListener("click", submitLead);
+document.getElementById("copyBtn").addEventListener("click", ()=>{ navigator.clipboard.writeText(document.getElementById("previewBox").textContent); toast("Copied"); });
+(function init(){
+ const ref=getRef();
+ document.querySelectorAll(".refText").forEach(el=>el.textContent=ref);
+ const banner=document.getElementById("refBanner");
+ if(new URLSearchParams(location.search).get("ref")){ banner.classList.remove("hidden"); banner.textContent="✅ Referral tracked: "+ref+" — 5 Levels 10,4,3,2,1 — locked 12 months"; }
+})();
+</script>
+</body>
+</html>
